@@ -6,8 +6,10 @@ db_user=$db_name
 db_password=$(date | md5sum | cut -c 1-12)
 mysql_root_password=$(date | md5sum | cut -c 1-12)
 admin_user="admin"
-admin_password="P@ssw0rd123!" # Change this to a secure password
-admin_email="admin@example.com"   # Change this to a valid email
+# Change this to a secure password
+admin_password="P@ssw0rd123!" 
+# Change this to a valid email
+admin_email="admin@example.com"   
 
 # Fetch the public IP address of the EC2 instance
 public_ip=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
