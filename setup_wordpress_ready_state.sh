@@ -14,7 +14,7 @@ public_ip=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
 
 # Update and install necessary packages
 apt update -y
-apt upgrade -y
+# apt upgrade -y
 
 # Install Apache
 apt install -y apache2
