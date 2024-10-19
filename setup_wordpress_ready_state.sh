@@ -12,7 +12,7 @@ admin_password="P@ssw0rd123!"
 admin_email="admin@example.com"   
 
 # Fetch the public IP address of the EC2 instance
-public_ip=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+public_ip=$(curl ifconfig.me)
 
 # Update and install necessary packages
 apt update -y
@@ -145,7 +145,7 @@ mv wp-cli.phar /usr/local/bin/wp
 
 # Install WordPress using WP-CLI
 cd ${install_dir}
-wp core install --url="http://${public_ip}:3000" --title="My WordPress Site" --admin_user=${admin_user} --admin_password=${admin_password} --admin_email=${admin_email}
+wp core install --url="http://${public_ip}:3000" --title="My WordPress Site" --admin_user=${admin_user} --admin_password=${admin_password} --admin_email=${admin_email} --allow-root
 
 # Ensure port 3000 is open in firewall (if ufw is used)
 ufw allow 3000/tcp
