@@ -49,6 +49,8 @@ How to read files
 ```bash
 /etc/apache2/sites-available/000-default.conf
 /etc/nginx/conf.d
+/etc/nginx/site-enabled
+/etc/nginx/sites-available
 ```
 ## Resource
 How to change url of wordpress using wordpress cli
