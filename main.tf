@@ -14,7 +14,7 @@ variable "region" {
 }
 
 variable "ami" {
-  default = "ami-0a1e7b49799644c35" # Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, us-east-1
+  default = "ami-0866a3c8686eaeeba" # Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, us-east-1
 }
 
 # Create VPC
