@@ -1,6 +1,6 @@
 # challenge-cloudresume-aws-level-0
 How to setup your first web app on AWS EC2, VPC and IGW
-## Setup apache2 for Wordpress
+## Setup apache2 for Wordpress for port 3000
 ```bash
 <VirtualHost *:3000>
     DocumentRoot /var/www/html/wordpress
