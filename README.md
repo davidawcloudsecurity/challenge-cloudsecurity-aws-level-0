@@ -1,5 +1,9 @@
 # challenge-cloudresume-aws-level-0
 How to setup your first web app on AWS EC2, VPC and IGW
+## Run this if you know how to install terraform in cloudshell
+```bash
+alias tf="terraform"; alias tfa="terraform apply --auto-approve"; alias tfd="terraform destroy --auto-approve"; alias tfm="terraform init; terraform fmt; terraform validate; terraform plan"
+```
 ## Setup apache2 for Wordpress for port 3000
 ```bash
 <VirtualHost *:3000>
