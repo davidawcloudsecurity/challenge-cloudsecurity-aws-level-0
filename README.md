@@ -1,6 +1,35 @@
 # challenge-cloudresume-aws-level-0
 How to setup your first web app on AWS EC2, VPC and IGW
+## Setup apache2 for Wordpress
+```bash
+<VirtualHost *:3000>
+    DocumentRoot /var/www/html/wordpress
+    <Directory /var/www/html/wordpress>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+## Setup nginx
+```bash
+server {
+    listen 80;
+    server_name localhost;
 
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
 ## Troubleshoot
 How to read logs
 ```bash
