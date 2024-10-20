@@ -71,13 +71,20 @@ resource "aws_route_table_association" "public_subnet_association" {
 
 # Create Security Group
 resource "aws_security_group" "public_security_group" {
-  name        = "allow_ssh"
+  name        = "allow_80_443"
   description = "Allow SSH inbound traffic"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -90,7 +97,7 @@ resource "aws_security_group" "public_security_group" {
   }
 
   tags = {
-    Name = "allow_ssh"
+    Name = "allow_80_443"
   }
 }
 
