@@ -27,7 +27,7 @@ systemctl start apache2
 sed -i 's/80/3000/g' /etc/apache2/ports.conf
 
 # Create Apache Virtual Host for WordPress
-cat <<EOF1 > /etc/apache2/sites-available/wordpress.conf
+cat <<EOF > /etc/apache2/sites-available/wordpress.conf
 <VirtualHost *:3000>
     DocumentRoot /var/www/html/wordpress
     <Directory /var/www/html/wordpress>
@@ -39,7 +39,7 @@ cat <<EOF1 > /etc/apache2/sites-available/wordpress.conf
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined    
 </VirtualHost>
-EOF1
+EOF
 
 # Enable the new site configuration and disable the default one
 a2ensite wordpress.conf
@@ -62,14 +62,14 @@ systemctl enable mariadb
 systemctl start mariadb
 
 # Secure MariaDB installation
-mysql_secure_installation <<EOF3
+mysql_secure_installation <<EOF
 
 n
 y
 y
 y
 y
-EOF3
+EOF
 
 # Set up MySQL root password and create WordPress database and user
 mysql -u root <<MYSQL_SCRIPT
@@ -89,11 +89,11 @@ else
 fi
 
 # Store MySQL root password in ~/.my.cnf for easier access
-cat > ~/.my.cnf <<EOF2
+cat > ~/.my.cnf <<EOF
 [client]
 user=root
 password=${mysql_root_password}
-EOF2
+EOF
 chmod 600 ~/.my.cnf
 
 # Install PHP and required modules
@@ -154,25 +154,25 @@ wp core install --url="http://${public_ip}" --title="My WordPress Site" --admin_
 apt install -y nginx
 systemctl enable nginx
 
-# Configure Nginx as a reverse proxy
-cat <<EOF4 > /etc/nginx/sites-available/default
+# Create NGINX config file
+sudo bash -c 'cat > /etc/nginx/sites-available/default << EOF
 server {
     listen 80;
     server_name localhost;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_set_header Connection "";
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
     }
 }
-EOF4
+EOF'
 
 # Restart Nginx to apply changes
 systemctl restart nginx
