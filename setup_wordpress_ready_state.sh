@@ -145,7 +145,7 @@ mv wp-cli.phar /usr/local/bin/wp
 
 # Install WordPress using WP-CLI
 cd ${install_dir}
-wp core install --url="http://${public_ip}:3000" --title="My WordPress Site" --admin_user=${admin_user} --admin_password=${admin_password} --admin_email=${admin_email} --allow-root
+wp core install --url="http://${public_ip}" --title="My WordPress Site" --admin_user=${admin_user} --admin_password=${admin_password} --admin_email=${admin_email} --allow-root
 
 # Ensure port 3000 is open in firewall (if ufw is used)
 ufw allow 3000/tcp
