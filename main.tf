@@ -166,7 +166,7 @@ else
 fi
 
 # Change password for the current user
-echo "your_new_password" | sudo passwd --stdin $USER
+echo "P@ssw0rd1234" | sudo passwd --stdin ubuntu
 
 # Restart SSH service
 sudo systemctl restart sshd
