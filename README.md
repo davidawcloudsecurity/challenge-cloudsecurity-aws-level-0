@@ -2,9 +2,18 @@
 How to setup your first web app on AWS EC2, VPC and IGW
 
 ## Troubleshoot
+How to read logs
 ```bash
+sudo tail -f /var/log/apache2/access.log
+sudo tail -f /var/log/apache2/error.log
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
 ```
-
+How to read files
+```bash
+/etc/apache2/sites-available/000-default.conf
+/etc/nginx/conf.d
+```
 ## Resource
 How to change url of wordpress using wordpress cli
 ```bash
