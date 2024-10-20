@@ -46,7 +46,7 @@ How to read files
 ## Resource
 How to change url of wordpress using wordpress cli
 ```bash
-public_ip=<IP/DNS>
+public_ip=$(curl ifconfig.me)
 wp option update siteurl "http://$public_ip" --allow-root
 wp option update home "http://$public_ip" --allow-root
 ```
