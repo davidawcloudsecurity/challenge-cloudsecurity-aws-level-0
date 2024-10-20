@@ -27,7 +27,7 @@ systemctl start apache2
 sed -i 's/80/3000/g' /etc/apache2/ports.conf
 
 # Create Apache Virtual Host for WordPress
-cat <<EOF > /etc/apache2/sites-available/wordpress.conf
+cat <<EOF1 > /etc/apache2/sites-available/wordpress.conf
 <VirtualHost *:3000>
     DocumentRoot /var/www/html/wordpress
     <Directory /var/www/html/wordpress>
@@ -39,7 +39,7 @@ cat <<EOF > /etc/apache2/sites-available/wordpress.conf
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined    
 </VirtualHost>
-EOF
+EOF1
 
 # Enable the new site configuration and disable the default one
 a2ensite wordpress.conf
@@ -62,14 +62,14 @@ systemctl enable mariadb
 systemctl start mariadb
 
 # Secure MariaDB installation
-mysql_secure_installation <<EOF
+mysql_secure_installation <<EOF3
 
 n
 y
 y
 y
 y
-EOF
+EOF3
 
 # Set up MySQL root password and create WordPress database and user
 mysql -u root <<MYSQL_SCRIPT
@@ -89,11 +89,11 @@ else
 fi
 
 # Store MySQL root password in ~/.my.cnf for easier access
-cat > ~/.my.cnf <<EOF
+cat > ~/.my.cnf <<EOF2
 [client]
 user=root
 password=${mysql_root_password}
-EOF
+EOF2
 chmod 600 ~/.my.cnf
 
 # Install PHP and required modules
@@ -155,7 +155,7 @@ apt install -y nginx
 systemctl enable nginx
 
 # Configure Nginx as a reverse proxy
-cat <<EOF > /etc/nginx/sites-available/default
+cat <<EOF4 > /etc/nginx/sites-available/default
 server {
     listen 80;
     server_name localhost;
@@ -172,7 +172,7 @@ server {
         proxy_set_header Connection "upgrade";
     }
 }
-EOF
+EOF4
 
 # Restart Nginx to apply changes
 systemctl restart nginx
