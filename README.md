@@ -8,6 +8,7 @@ How to setup your first web app on AWS EC2, VPC and IGW
 ## Resource
 How to change url of wordpress using wordpress cli
 ```bash
+public_ip=<IP/DNS>
 wp option update siteurl "http://$public_ip" --allow-root
 wp option update home "http://$public_ip" --allow-root
 ```
