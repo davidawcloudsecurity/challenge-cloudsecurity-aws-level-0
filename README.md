@@ -30,6 +30,10 @@ server {
     }
 }
 ```
+## Use Certbot
+```bash
+sudo apt install certbot python3-certbot-nginx
+```
 ## Troubleshoot
 How to read logs
 ```bash
