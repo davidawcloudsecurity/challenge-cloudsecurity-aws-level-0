@@ -143,9 +143,9 @@ curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.pha
 chmod +x wp-cli.phar
 mv wp-cli.phar /usr/local/bin/wp
 
-# Install WordPress using WP-CLI
+# Install WordPress using WP-CLI. Remove 3000 if required to hide port number
 cd ${install_dir}
-wp core install --url="http://${public_ip}" --title="My WordPress Site" --admin_user=${admin_user} --admin_password=${admin_password} --admin_email=${admin_email} --allow-root
+wp core install --url="http://${public_ip}:3000" --title="My WordPress Site" --admin_user=${admin_user} --admin_password=${admin_password} --admin_email=${admin_email} --allow-root
 
 # Ensure port 3000 is open in firewall (if ufw is used)
 ufw allow 3000/tcp
