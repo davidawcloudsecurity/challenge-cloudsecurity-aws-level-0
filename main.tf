@@ -118,7 +118,7 @@ resource "aws_iam_role" "ec2_session_manager_role" {
       {
         "Effect": "Allow",
         "Principal": {
-          "Service": "ssm.amazonaws.com"
+          "Service": "ec2.amazonaws.com"
         },
         "Action": "sts:AssumeRole"
       }
