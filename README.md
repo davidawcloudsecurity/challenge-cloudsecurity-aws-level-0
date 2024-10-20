@@ -35,7 +35,7 @@ server {
 sudo apt install certbot python3-certbot-nginx -y
 example=dns
 sudo certbot --nginx -d $example -d www.${example} # interactive
-sudo certbot --nginx -d $example -d www.${example} --non-interactive --agree-tos --email your-email@${example} # non interactive
+sudo certbot --nginx -d $example --non-interactive --agree-tos --email your-email@${example} # non interactive
 ```
 ## Troubleshoot
 How to read logs
