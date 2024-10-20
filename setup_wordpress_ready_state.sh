@@ -35,6 +35,9 @@ cat <<EOF > /etc/apache2/sites-available/wordpress.conf
         AllowOverride All
         Require all granted
     </Directory>
+    # Logging
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined    
 </VirtualHost>
 EOF
 
