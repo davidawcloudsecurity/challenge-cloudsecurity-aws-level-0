@@ -145,39 +145,8 @@ resource "aws_instance" "ubuntu_instance" {
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
-  # user_data = filebase64("setup_wordpress_nginx_ready_state.sh")
-  user_data = <<-EOF
-#!/bin/bash
-# Define the path to the sshd_config file for Ubuntu
-sshd_config="/etc/ssh/sshd_config"
+  user_data = filebase64("setup_wordpress_nginx_ready_state.sh")
 
-# Define the string to be replaced
-old_string="PasswordAuthentication no"
-new_string="PasswordAuthentication yes"
-
-# Check if the file exists
-if [ -e "$sshd_config" ]; then
-    # Use sed to replace the old string with the new string
-    sudo sed -i "s/$old_string/$new_string/" "$sshd_config"
-
-    # Check if the sed command was successful
-    if [ $? -eq 0 ]; then
-        echo "String replaced successfully."
-        # Restart the SSH service to apply the changes
-        sudo systemctl restart sshd
-    else
-        echo "Error replacing string in $sshd_config."
-    fi
-else
-    echo "File $sshd_config not found."
-fi
-
-# Change password for the current user
-echo "ubuntu:P@ssw0rd1234" | sudo chpasswd
-
-# Restart SSH service
-sudo systemctl restart sshd
-EOF
   tags = {
     Name = "my-first-web-app"
   }
