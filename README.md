@@ -117,6 +117,7 @@ wp theme delete theme-name
 Consulting
 ```bash
 https://wordpress.org/themes/envo-royal/
+https://wordpress.org/themes/spectra-one/
 ```
 Blog
 ```bash
