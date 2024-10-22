@@ -69,6 +69,20 @@ How to read files
 /etc/nginx/site-enabled
 /etc/nginx/sites-available
 ```
+## Themes for different types of online business
+Consulting
+```bash
+https://wordpress.org/themes/envo-royal/
+```
+Blog
+```bash
+https://wordpress.org/themes/oceanwp/
+```
+ecommerce
+```bash
+https://wordpress.org/themes/bloghash/
+```
+
 ## Resource
 How to change url of wordpress using wordpress cli
 ```bash
