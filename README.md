@@ -70,6 +70,50 @@ How to read files
 /etc/nginx/sites-available
 ```
 ## Themes for different types of online business
+```bash
+1. Install a Theme from WordPress Repository
+To install a theme from the WordPress repository, use the wp theme install command. For example, to install the Twenty Twenty-Three theme:
+
+bash
+Copy code
+wp theme install twentytwentythree
+This will download and install the theme. If you also want to activate it immediately, add the --activate flag:
+
+bash
+Copy code
+wp theme install twentytwentythree --activate
+2. Install a Theme from a URL
+If you have a custom theme hosted somewhere (like on GitHub or a zip file on another server), you can install it from a URL. Here's an example:
+
+bash
+Copy code
+wp theme install https://example.com/path/to/theme.zip
+If you want to activate the theme immediately after installation, use the --activate flag:
+
+bash
+Copy code
+wp theme install https://example.com/path/to/theme.zip --activate
+3. Upload and Install a Local Theme
+If you have a theme locally as a .zip file, you can manually upload it using the command:
+
+bash
+Copy code
+wp theme install /path/to/theme.zip
+This installs the theme from the local .zip file. Add the --activate flag if you want to activate it upon installation.
+
+Additional WP-CLI Theme Commands
+To update a theme:
+
+bash
+Copy code
+wp theme update theme-name
+To delete a theme:
+
+bash
+Copy code
+wp theme delete theme-name
+```
+
 Consulting
 ```bash
 https://wordpress.org/themes/envo-royal/
