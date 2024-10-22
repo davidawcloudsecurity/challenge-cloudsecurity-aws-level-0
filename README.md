@@ -118,6 +118,11 @@ Consulting
 ```bash
 https://wordpress.org/themes/envo-royal/
 https://wordpress.org/themes/spectra-one/
+https://wordpress.org/themes/zeever/
+https://wordpress.org/themes/zatra/
+https://wordpress.org/themes/bakery-and-pastry/
+https://wordpress.org/themes/monify-lite/
+https://wordpress.org/themes/photolancer/
 ```
 Blog
 ```bash
