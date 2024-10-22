@@ -13,6 +13,10 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable setup_filename {
+  default = "setup_wordpress_nginx_ready_state.sh"
+}
+
 variable "ami" {
   default = "ami-0866a3c8686eaeeba" # Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, us-east-1
 }
@@ -138,7 +142,7 @@ resource "aws_instance" "ubuntu_instance" {
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
-  user_data = filebase64("setup_wordpress_nginx_ready_state.sh")
+  user_data = filebase64("${var.setup_filename}")
 
   tags = {
     Name = "my-first-web-app"
