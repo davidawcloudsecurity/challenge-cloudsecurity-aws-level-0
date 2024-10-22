@@ -4,6 +4,19 @@ How to setup your first web app on AWS EC2, VPC and IGW
 ```bash
 alias tf="terraform"; alias tfa="terraform apply --auto-approve"; alias tfd="terraform destroy --auto-approve"; alias tfm="terraform init; terraform fmt; terraform validate; terraform plan"; sudo yum install -y yum-utils shadow-utils; sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo; sudo yum -y install terraform; terraform init
 ```
+## Run the following to setup as per your experience
+If you want to setup WordPress with custom title, username, and password
+```bash
+tfa -var setup_filename=setup_wordpress.sh
+```
+If you want to setup WordPress with default title, username and password
+```bash
+tfa -var setup_filename=setup_wordpress_ready_state.sh
+```
+If you want to setup WordPress with nginx, default title, username and password
+```bash
+tfa -var setup_filename=setup_wordpress_nginx_ready_state.sh
+```
 ## Setup apache2 for Wordpress for port 3000
 ```bash
 <VirtualHost *:3000>
