@@ -76,7 +76,11 @@ https://wordpress.org/themes/envo-royal/
 ```
 Blog
 ```bash
-https://wordpress.org/themes/oceanwp/
+https://wordpress.org/themes/colibri-wp/
+https://wordpress.org/themes/newsexo/
+https://wordpress.org/themes/inspiro/
+https://wordpress.org/themes/kubio/
+
 ```
 ecommerce
 ```bash
