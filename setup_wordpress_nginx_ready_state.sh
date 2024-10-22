@@ -133,7 +133,7 @@ sed -i "s/username_here/${db_user}/" ${install_dir}/wp-config.php
 sed -i "s/password_here/${db_password}/" ${install_dir}/wp-config.php
 
 # Add security keys (salts) to wp-config.php
-curl -s https://api.wordpress.org/secret-key/1.1/salt/ >> ${install_dir}/wp-config.php
+# curl -s https://api.wordpress.org/secret-key/1.1/salt/ >> ${install_dir}/wp-config.php
 
 # Enable Apache mods for WordPress (rewrite for pretty permalinks)
 a2enmod rewrite
@@ -196,3 +196,8 @@ else
     echo "Installation failed. Please check the logs for more information."
     exit 1
 fi
+
+# Install theme
+cd /var/www/html/wordpress
+wp theme install https://downloads.wordpress.org/theme/spectra-one.1.1.5.zip --activate --allow-root
+systemctl restart apache2
