@@ -119,7 +119,7 @@ data "aws_iam_role" "ec2_session_manager_role" {
 
 # If the role does not exist, create the IAM Role
 resource "aws_iam_role" "ec2_session_manager_role" {
-  count = length(data.aws_iam_role.ec2_session_manager_role.arn) == 0 ? 1 : 0
+  count = var.use_existing_role ? 1 : 0
 
   name = "ec2_session_manager_role"
 
