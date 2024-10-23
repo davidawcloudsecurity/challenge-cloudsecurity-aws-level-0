@@ -13,7 +13,7 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable setup_filename {
+variable "setup_filename" {
   default = "setup_wordpress_nginx_ready_state.sh"
 }
 
@@ -138,8 +138,8 @@ resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
   ami                    = var.ami
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_subnet.id
+  instance_type         = "t2.micro"
+  subnet_id             = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
   user_data = filebase64("${var.setup_filename}")
@@ -148,3 +148,11 @@ resource "aws_instance" "ubuntu_instance" {
     Name = "my-first-web-app"
   }
 }
+
+# Enable GuardDuty
+resource "aws_guardduty_detector" "this" {
+  enable = true
+}
+
+# Enable Security Hub
+resource "aws_securityhub_account" "this" {}
