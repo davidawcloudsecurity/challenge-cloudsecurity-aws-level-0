@@ -17,6 +17,10 @@ If you want to setup WordPress with nginx, default title, username and password
 ```bash
 tfa -var setup_filename=setup_wordpress_nginx_ready_state.sh
 ```
+true to create session manager role, false to skip.
+```bash
+tfa -var use_existing_role=false
+```
 ## Setup apache2 for Wordpress for port 3000
 ```bash
 <VirtualHost *:3000>
