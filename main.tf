@@ -238,10 +238,10 @@ resource "null_resource" "create_lambda_files" {
 
           for (const record of event.Records) {
               const finding = JSON.parse(record.Sns.Message);
-              console.log(\`Processing finding: \\\${finding.Id}\`);
+              console.log(\`Processing finding: \${finding.Id}\`);
 
               const params = {
-                  Message: \\\`New GuardDuty finding: \\\${finding.Id}\\\`,
+                  Message: \`New GuardDuty finding: \${finding.Id}\`,
                   TopicArn: process.env.SNS_TOPIC_ARN
               };
 
@@ -276,6 +276,7 @@ resource "null_resource" "create_lambda_files" {
     EOT
   }
 }
+
 
 # Create Lambda function
 resource "aws_lambda_function" "findings_processor" {
