@@ -261,9 +261,9 @@ resource "null_resource" "create_lambda_files" {
           console.log('Event: ', JSON.stringify(event, null, 2));
           for (const record of event.Records) {
               const finding = JSON.parse(record.Sns.Message);
-              console.log(\`Processing finding: \${finding.Id}\`);
+              console.log(\`Processing finding: \$\{finding.Id\}\`);
               const params = {
-                  Message: \`New GuardDuty finding: \${finding.Id}\`,
+                  Message: \`New GuardDuty finding: \$\{finding.Id\}\`,
                   TopicArn: process.env.SNS_TOPIC_ARN
               };
               await sns.publish(params).promise();
