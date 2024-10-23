@@ -227,34 +227,27 @@ resource "null_resource" "create_lambda_files" {
     command = <<EOT
       # Create a directory for the Lambda function
       mkdir -p lambda_function
-
       # Create index.js
       cat > lambda_function/index.js <<EOF
       const AWS = require('aws-sdk');
       const sns = new AWS.SNS();
-
       exports.handler = async (event) => {
           console.log('Event: ', JSON.stringify(event, null, 2));
-
           for (const record of event.Records) {
               const finding = JSON.parse(record.Sns.Message);
-              console.log(\`Processing finding: \${finding.Id}\`);
-
+              console.log(\`Processing finding: \$\{finding.Id\}\`);
               const params = {
-                  Message: \`New GuardDuty finding: \${finding.Id}\`,
+                  Message: \`New GuardDuty finding: \$\{finding.Id\}\`,
                   TopicArn: process.env.SNS_TOPIC_ARN
               };
-
               await sns.publish(params).promise();
           }
-
           return {
               statusCode: 200,
               body: JSON.stringify('Processing complete.'),
           };
       };
       EOF
-
       # Create package.json
       cat > lambda_function/package.json <<EOF
       {
@@ -267,16 +260,13 @@ resource "null_resource" "create_lambda_files" {
           }
       }
       EOF
-
       # Change to the lambda_function directory and install dependencies
       cd lambda_function && npm install
-
       # Create a zip file of the lambda function
       zip -r findings_processor.zip .
     EOT
   }
 }
-
 
 # Create Lambda function
 resource "aws_lambda_function" "findings_processor" {
