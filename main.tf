@@ -13,8 +13,10 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable create_ssmrole {
-  default = 0
+# Define a variable to provide the IAM Role name if you want to use an existing one
+variable "use_existing_role" {
+  type    = bool
+  default = false
 }
 
 variable setup_filename {
@@ -111,8 +113,8 @@ resource "aws_security_group" "public_security_group" {
 
 # Check if the IAM Role already exists
 data "aws_iam_role" "ec2_session_manager_role" {
+  count = var.use_existing_role ? 1 : 0
   name = "ec2_session_manager_role"
-  count = var.create_ssmrole
 }
 
 # If the role does not exist, create the IAM Role
