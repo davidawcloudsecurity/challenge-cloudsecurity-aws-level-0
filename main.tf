@@ -154,7 +154,7 @@ data "aws_instance" "ubuntu_instance" {
 }
 
 resource "aws_instance" "ubuntu_instance" {
-  count = length(data.aws_instance.ubuntu_instance.ids) == 0 ? 1 : 0
+  count = length(data.aws_instance.ubuntu_instance.id) == 0 ? 1 : 0
 
   ami                    = var.ami
   instance_type          = "t2.micro"
