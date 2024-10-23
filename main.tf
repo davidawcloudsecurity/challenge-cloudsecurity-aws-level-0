@@ -132,17 +132,17 @@ resource "aws_iam_role" "ec2_session_manager_role" {
 
 # Attach IAM Policy for Session Manager only if the role was created
 resource "aws_iam_role_policy_attachment" "session_manager_policy" {
-  count = aws_iam_role.ec2_session_manager_role.count == 1 ? 1 : 0
-  role       = aws_iam_role.ec2_session_manager_role.name
+  count = length(aws_iam_role.ec2_session_manager_role) > 0 ? 1 : 0
+  role       = aws_iam_role.ec2_session_manager_role[count.index].name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 # Create or use existing Instance Profile for the Role
 resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
-  count = aws_iam_role.ec2_session_manager_role.count == 1 ? 1 : 0
+  count = length(aws_iam_role.ec2_session_manager_role) > 0 ? 1 : 0
 
   name = "ec2_session_manager_profile"
-  role = aws_iam_role.ec2_session_manager_role.name
+  role = aws_iam_role.ec2_session_manager_role[count.index].name
 }
 
 # Launch EC2 Instance only if it doesn't already exist
@@ -160,7 +160,7 @@ resource "aws_instance" "ubuntu_instance" {
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
+  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile[count.index].name
   user_data = filebase64("${var.setup_filename}")
 
   tags = {
