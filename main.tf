@@ -149,10 +149,138 @@ resource "aws_instance" "ubuntu_instance" {
   }
 }
 
-# Enable GuardDuty
+# Enable GuardDuty / Enable Security Hub
 resource "aws_guardduty_detector" "this" {
   enable = true
 }
 
-# Enable Security Hub
 resource "aws_securityhub_account" "this" {}
+
+# Adding SNS for GuardDuty Findings
+# Create an SNS Topic for GuardDuty Findings
+resource "aws_sns_topic" "guardduty_findings" {
+  name = "guardduty-findings"
+}
+
+# Create a CloudWatch Event Rule for GuardDuty Findings
+resource "aws_cloudwatch_event_rule" "guardduty_findings_rule" {
+  name        = "guardduty-findings-rule"
+  description = "Triggers on GuardDuty findings"
+  event_pattern = jsonencode({
+    source = ["aws.guardduty"]
+    detail-type = ["GuardDuty Finding"]
+  })
+}
+
+# Create a CloudWatch Event Target to send notifications to the SNS Topic
+resource "aws_cloudwatch_event_target" "guardduty_findings_target" {
+  rule      = aws_cloudwatch_event_rule.guardduty_findings_rule.name
+  target_id = "GuardDutyFindingsSNS"
+  arn       = aws_sns_topic.guardduty_findings.arn
+}
+
+# Grant permissions for CloudWatch Events to publish to the SNS Topic
+resource "aws_sns_topic_subscription" "guardduty_subscription" {
+  topic_arn = aws_sns_topic.guardduty_findings.arn
+  protocol  = "email"
+  endpoint  = "foabdavid@gmail.com"  # Replace with your email
+}
+
+# You may also want to set up IAM roles or policies for further integration
+
+/* 
+# Security Hub Integration with AWS Config
+# Enabling AWS Config and Creating a Rule
+resource "aws_config_configuration_recorder" "this" {
+  name     = "config_recorder"
+  role_arn = aws_iam_role.config_role.arn
+
+  recording_group {
+    all_supported = true
+    include_global_resource_types = true
+  }
+}
+
+resource "aws_config_delivery_channel" "this" {
+  name           = "config_channel"
+  s3_bucket_name = "your-s3-bucket-name"  # Replace with your bucket name
+}
+
+resource "aws_config_rule" "s3_bucket_public_read_prohibited" {
+  name = "s3-bucket-public-read-prohibited"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
+  }
+
+  input_parameters = jsonencode({})
+
+  maximum_execution_frequency = "Six_Hours"
+}
+*/
+
+# AWS Lambda for Security Hub Findings Processing
+# Basic Lambda Function Setup
+resource "aws_lambda_function" "findings_processor" {
+  filename         = "findings_processor.zip"  # Your zipped Lambda function
+  function_name    = "findingsProcessor"
+  role             = aws_iam_role.lambda_exec.arn
+  handler          = "index.handler"
+  runtime          = "nodejs14.x"  # Choose your preferred runtime
+  source_code_hash = filebase64sha256("findings_processor.zip")
+
+  environment = {
+    SNS_TOPIC_ARN = aws_sns_topic.guardduty_findings.arn
+  }
+}
+
+# Create an IAM Role for Lambda Execution
+resource "aws_iam_role" "lambda_exec" {
+  name = "lambda_exec_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+}
+
+# Attach policy for publishing to SNS
+resource "aws_iam_role_policy_attachment" "lambda_sns_policy" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# Grant permission for Lambda to publish to the SNS Topic
+resource "aws_sns_topic_subscription" "lambda_subscription" {
+  topic_arn = aws_sns_topic.guardduty_findings.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.findings_processor.arn
+}
+
+# Adding Outputs
+output "vpc_id" {
+  value = aws_vpc.main.id
+}
+
+output "public_subnet_id" {
+  value = aws_subnet.public_subnet.id
+}
+
+output "ec2_instance_id" {
+  value = aws_instance.ubuntu_instance.id
+}
+
+output "guardduty_detector_id" {
+  value = aws_guardduty_detector.this.id
+}
+
+output "securityhub_status" {
+  value = aws_securityhub_account.this.id
+}
