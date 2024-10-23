@@ -158,10 +158,11 @@ data "aws_instance" "ubuntu_instance" {
     name   = "tag:Name"
     values = ["my-first-web-app"]
   }
+  count = var.use_existing_role ? 1 : 0
 }
 
 resource "aws_instance" "ubuntu_instance" {
-  count = length(data.aws_instance.ubuntu_instance.id) == 1 ? 1 : 0
+  count = var.use_existing_role ? 1 : 0
 
   ami                    = var.ami
   instance_type          = "t2.micro"
