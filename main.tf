@@ -223,12 +223,10 @@ resource "aws_config_rule" "s3_bucket_public_read_prohibited" {
 # AWS Lambda for Security Hub Findings Processing
 # Create a directory for the Lambda function
 resource "null_resource" "create_lambda_files" {
-  provisioner "local-exec" {
-    command = <<EOT
-      # Create a directory for the Lambda function
-      mkdir -p lambda_function
-      # Create index.js
-      cat > lambda_function/index.js <<EOF
+  # Add triggers to ensure this runs when needed
+  triggers = {
+    # This will trigger a rebuild whenever these files change
+    index_js_hash = md5(<<-EOT
       const AWS = require('aws-sdk');
       const sns = new AWS.SNS();
       exports.handler = async (event) => {
@@ -247,9 +245,38 @@ resource "null_resource" "create_lambda_files" {
               body: JSON.stringify('Processing complete.'),
           };
       };
-      EOF
+    EOT
+    )
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      mkdir -p ${path.module}/lambda_function
+      
+      # Create index.js
+      cat > ${path.module}/lambda_function/index.js <<'EOF'
+      const AWS = require('aws-sdk');
+      const sns = new AWS.SNS();
+      exports.handler = async (event) => {
+          console.log('Event: ', JSON.stringify(event, null, 2));
+          for (const record of event.Records) {
+              const finding = JSON.parse(record.Sns.Message);
+              console.log(\`Processing finding: \${finding.Id}\`);
+              const params = {
+                  Message: \`New GuardDuty finding: \${finding.Id}\`,
+                  TopicArn: process.env.SNS_TOPIC_ARN
+              };
+              await sns.publish(params).promise();
+          }
+          return {
+              statusCode: 200,
+              body: JSON.stringify('Processing complete.'),
+          };
+      };
+EOF
+
       # Create package.json
-      cat > lambda_function/package.json <<EOF
+      cat > ${path.module}/lambda_function/package.json <<'EOF'
       {
           "name": "findings-processor",
           "version": "1.0.0",
@@ -259,23 +286,30 @@ resource "null_resource" "create_lambda_files" {
               "aws-sdk": "^2.1000.0"
           }
       }
-      EOF
-      # Change to the lambda_function directory and install dependencies
-      cd lambda_function && npm install
-      # Create a zip file of the lambda function
-      zip -r findings_processor.zip .
+EOF
+
+      cd ${path.module}/lambda_function && \
+      npm install && \
+      zip -r ../findings_processor.zip .
     EOT
   }
 }
 
+data "archive_file" "lambda_zip" {
+  depends_on = [null_resource.create_lambda_files]
+  type        = "zip"
+  source_dir  = "${path.module}/lambda_function"
+  output_path = "${path.module}/findings_processor.zip"
+}
+
 # Create Lambda function
 resource "aws_lambda_function" "findings_processor" {
-  filename         = "lambda_function/findings_processor.zip"  # Path to the zip file
+  filename         = data.archive_file.lambda_zip.output_path
   function_name    = "findingsProcessor"
   role             = aws_iam_role.lambda_exec.arn
   handler          = "index.handler"
-  runtime          = "nodejs14.x"  # Choose your preferred runtime
-  source_code_hash = filebase64sha256("lambda_function/findings_processor.zip")
+  runtime          = "nodejs14.x"
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 
   environment {
     variables = {
@@ -283,7 +317,10 @@ resource "aws_lambda_function" "findings_processor" {
     }
   }
 
-  depends_on = [null_resource.create_lambda_files]
+  depends_on = [
+    null_resource.create_lambda_files,
+    data.archive_file.lambda_zip
+  ]
 }
 
 # Create an IAM Role for Lambda Execution
