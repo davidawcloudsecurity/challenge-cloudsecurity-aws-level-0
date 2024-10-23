@@ -13,6 +13,10 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable create_ssmrole {
+  default = 0
+}
+
 variable setup_filename {
   default = "setup_wordpress_nginx_ready_state.sh"
 }
@@ -108,6 +112,7 @@ resource "aws_security_group" "public_security_group" {
 # Check if the IAM Role already exists
 data "aws_iam_role" "ec2_session_manager_role" {
   name = "ec2_session_manager_role"
+  count = var.create_ssmrole
 }
 
 # If the role does not exist, create the IAM Role
