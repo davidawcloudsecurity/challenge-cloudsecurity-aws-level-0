@@ -150,8 +150,70 @@ resource "aws_instance" "ubuntu_instance" {
 }
 
 # Enable GuardDuty / Enable Security Hub
-resource "aws_guardduty_detector" "this" {
+# Create S3 Bucket for GuardDuty threat list
+resource "aws_s3_bucket" "guardduty_threat_list" {
+  bucket = "my-guardduty-threat-list-bucket-${random_id.bucket_suffix.hex}"
+  
+  tags = {
+    Name = "GuardDutyThreatListBucket"
+  }
+}
+
+# Generate a random ID to make sure the bucket name is unique
+resource "random_id" "bucket_suffix" {
+  byte_length = 8
+}
+
+# Null resource to create and append EC2 instance public IP to threat-list.txt
+resource "null_resource" "create_threat_list" {
+  provisioner "local-exec" {
+    command = <<EOT
+      # Create the threat-list.txt file if it doesn't exist
+      touch threat-list.txt
+
+      # Append the public IP of the EC2 instance to the threat list
+      echo "${aws_instance.ubuntu_instance.public_ip}" >> threat-list.txt
+
+      # Display the contents of the file (optional)
+      cat threat-list.txt
+    EOT
+  }
+
+  # Ensure the EC2 instance is created before we run this
+  depends_on = [aws_instance.ubuntu_instance]
+}
+
+# Upload the threat list file to the S3 bucket
+resource "aws_s3_bucket_object" "guardduty_threat_list_file" {
+  bucket = aws_s3_bucket.guardduty_threat_list.bucket
+  key    = "threat-list.txt"
+  source = "threat-list.txt"  # This is the locally generated threat list
+
+  tags = {
+    Name = "GuardDutyThreatListFile"
+  }
+
+  # Ensure the threat list is created before uploading
+  depends_on = [null_resource.create_threat_list]
+}
+
+# Enable GuardDuty
+resource "aws_guardduty_detector" "main" {
   enable = true
+}
+
+# Add a GuardDuty ThreatIntelSet (threat list)
+resource "aws_guardduty_threatintelset" "guardduty_threatintelset" {
+  detector_id = aws_guardduty_detector.main.id
+  activate    = true
+  format      = "TXT"
+  location    = "s3://${aws_s3_bucket.guardduty_threat_list.bucket}/${aws_s3_bucket_object.guardduty_threat_list_file.key}"
+
+  depends_on = [aws_s3_bucket_object.guardduty_threat_list_file]
+
+  tags = {
+    Name = "GuardDutyThreatIntelSet"
+  }
 }
 
 resource "aws_securityhub_account" "this" {}
