@@ -432,7 +432,7 @@ output "ec2_instance_id" {
   value = aws_instance.ubuntu_instance.id
 }
 
-output "guardduty_detector_id" {
+output "aws_guardduty_detector_id" {
   value = aws_guardduty_detector.this.id
 }
 
