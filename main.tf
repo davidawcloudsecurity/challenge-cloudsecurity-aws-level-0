@@ -433,7 +433,7 @@ output "ec2_instance_id" {
 }
 
 output "aws_guardduty_detector_id" {
-  value = aws_guardduty_detector.this.id
+  value = aws_guardduty_detector.id
 }
 
 output "securityhub_status" {
