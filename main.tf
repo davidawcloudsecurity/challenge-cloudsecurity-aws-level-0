@@ -432,9 +432,11 @@ output "ec2_instance_id" {
   value = aws_instance.ubuntu_instance.id
 }
 
+/*
 output "aws_guardduty_detector_id" {
   value = aws_guardduty_detector.id
 }
+*/
 
 output "securityhub_status" {
   value = aws_securityhub_account.this.id
