@@ -183,17 +183,16 @@ resource "null_resource" "create_threat_list" {
   depends_on = [aws_instance.ubuntu_instance]
 }
 
-# Upload the threat list file to the S3 bucket
-resource "aws_s3_bucket_object" "guardduty_threat_list_file" {
+# Update S3 object resource (fix deprecation warning)
+resource "aws_s3_object" "guardduty_threat_list_file" {
   bucket = aws_s3_bucket.guardduty_threat_list.bucket
   key    = "threat-list.txt"
-  source = "threat-list.txt"  # This is the locally generated threat list
+  source = "threat-list.txt"
 
   tags = {
     Name = "GuardDutyThreatListFile"
   }
 
-  # Ensure the threat list is created before uploading
   depends_on = [null_resource.create_threat_list]
 }
 
@@ -202,18 +201,24 @@ resource "aws_guardduty_detector" "main" {
   enable = true
 }
 
-# Add a GuardDuty ThreatIntelSet (threat list)
+# Update GuardDuty ThreatIntelSet with required name
 resource "aws_guardduty_threatintelset" "guardduty_threatintelset" {
   detector_id = aws_guardduty_detector.main.id
+  name        = "custom-threat-list"  # Add required name argument
   activate    = true
   format      = "TXT"
-  location    = "s3://${aws_s3_bucket.guardduty_threat_list.bucket}/${aws_s3_bucket_object.guardduty_threat_list_file.key}"
+  location    = "s3://${aws_s3_bucket.guardduty_threat_list.bucket}/threat-list.txt"  # Simplified location reference
 
-  depends_on = [aws_s3_bucket_object.guardduty_threat_list_file]
+  depends_on = [aws_s3_object.guardduty_threat_list_file]
 
   tags = {
     Name = "GuardDutyThreatIntelSet"
   }
+}
+
+# Fix output reference
+output "guardduty_detector_id" {
+  value = aws_guardduty_detector.main.id  # Update reference to match resource name
 }
 
 resource "aws_securityhub_account" "this" {}
