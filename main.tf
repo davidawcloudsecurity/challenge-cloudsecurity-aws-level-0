@@ -174,6 +174,7 @@ resource "aws_instance" "ubuntu_instance" {
   }
 }
 
+/*
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "threat_actor" {
   ami                    = var.ami
@@ -200,6 +201,7 @@ EOF
     Name = "threat-actor"
   }
 }
+*/
 
 # Enable GuardDuty / Enable Security Hub
 # Create S3 Bucket for GuardDuty threat list
