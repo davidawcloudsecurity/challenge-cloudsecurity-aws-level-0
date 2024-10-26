@@ -100,6 +100,20 @@ resource "aws_security_group" "public_security_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -294,6 +308,8 @@ resource "aws_config_rule" "s3_bucket_public_read_prohibited" {
 }
 */
 
+/* Remove to learn better first
+
 # AWS Lambda for Security Hub Findings Processing
 # Create a directory for the Lambda function
 resource "null_resource" "create_lambda_files" {
@@ -425,6 +441,7 @@ resource "aws_sns_topic_subscription" "lambda_subscription" {
   protocol  = "lambda"
   endpoint  = aws_lambda_function.findings_processor.arn
 }
+*/
 
 # Adding Outputs
 output "vpc_id" {
