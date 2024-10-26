@@ -13,6 +13,10 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable email {
+  default = "admin@example.com"
+}
+
 variable "setup_filename" {
   default = "setup_wordpress_nginx_ready_state.sh"
 }
@@ -289,7 +293,7 @@ resource "aws_cloudwatch_event_target" "guardduty_findings_target" {
 resource "aws_sns_topic_subscription" "guardduty_subscription" {
   topic_arn = aws_sns_topic.guardduty_findings.arn
   protocol  = "email"
-  endpoint  = "foabdavid@gmail.com"  # Replace with your email
+  endpoint  = "var.email"  # Replace with your email
 }
 
 # You may also want to set up IAM roles or policies for further integration
