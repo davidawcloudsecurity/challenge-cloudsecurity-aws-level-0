@@ -183,6 +183,15 @@ resource "aws_instance" "threat_actor" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
   user_data = <<-EOF
 #!/bin/bash
+apt update -y
+apt install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+apt-cache policy docker-ce
+apt install docker-ce
+systemctl status docker
+systemctl start docker
+usermod -aG docker ssm-user
 docker pull hackersploit/bugbountytoolkit
 docker run -it hackersploit/bugbountytoolkit
 EOF
@@ -293,7 +302,7 @@ resource "aws_cloudwatch_event_target" "guardduty_findings_target" {
 resource "aws_sns_topic_subscription" "guardduty_subscription" {
   topic_arn = aws_sns_topic.guardduty_findings.arn
   protocol  = "email"
-  endpoint  = "var.email"  # Replace with your email
+  endpoint  = "${var.email}"  # Replace with your email
 }
 
 # You may also want to set up IAM roles or policies for further integration
