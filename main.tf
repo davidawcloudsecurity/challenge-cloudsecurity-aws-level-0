@@ -238,6 +238,14 @@ resource "null_resource" "create_threat_list" {
   depends_on = [aws_instance.ubuntu_instance]
 }
 
+# Enable GuardDuty
+resource "aws_guardduty_detector" "main" {
+  enable = true
+}
+
+resource "aws_securityhub_account" "this" {}
+
+/* Disable first to learn better
 # Update S3 object resource (fix deprecation warning)
 resource "aws_s3_object" "guardduty_threat_list_file" {
   bucket = aws_s3_bucket.guardduty_threat_list.bucket
@@ -249,11 +257,6 @@ resource "aws_s3_object" "guardduty_threat_list_file" {
   }
 
   depends_on = [null_resource.create_threat_list]
-}
-
-# Enable GuardDuty
-resource "aws_guardduty_detector" "main" {
-  enable = true
 }
 
 # Update GuardDuty ThreatIntelSet with required name
@@ -270,14 +273,9 @@ resource "aws_guardduty_threatintelset" "guardduty_threatintelset" {
     Name = "GuardDutyThreatIntelSet"
   }
 }
+*/
 
-# Fix output reference
-output "guardduty_detector_id" {
-  value = aws_guardduty_detector.main.id  # Update reference to match resource name
-}
-
-resource "aws_securityhub_account" "this" {}
-
+/*
 # Adding SNS for GuardDuty Findings
 # Create an SNS Topic for GuardDuty Findings
 resource "aws_sns_topic" "guardduty_findings" {
@@ -307,6 +305,7 @@ resource "aws_sns_topic_subscription" "guardduty_subscription" {
   protocol  = "email"
   endpoint  = "${var.email}"  # Replace with your email
 }
+*/
 
 # You may also want to set up IAM roles or policies for further integration
 
@@ -490,11 +489,9 @@ output "ec2_instance_id" {
   value = aws_instance.ubuntu_instance.id
 }
 
-/*
-output "aws_guardduty_detector_id" {
-  value = aws_guardduty_detector.id
+output "guardduty_detector_id" {
+  value = aws_guardduty_detector.main.id  # Update reference to match resource name
 }
-*/
 
 output "securityhub_status" {
   value = aws_securityhub_account.this.id
