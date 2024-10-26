@@ -170,6 +170,24 @@ resource "aws_instance" "ubuntu_instance" {
   }
 }
 
+# Launch EC2 Instance with Session Manager
+resource "aws_instance" "threat_actor" {
+  ami                    = var.ami
+  instance_type         = "t2.micro"
+  subnet_id             = aws_subnet.public_subnet.id
+  vpc_security_group_ids = [aws_security_group.public_security_group.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
+  user_data = <<-EOF
+#!/bin/bash
+docker pull hackersploit/bugbountytoolkit
+docker run -it hackersploit/bugbountytoolkit
+EOF
+
+  tags = {
+    Name = "my-first-web-app"
+  }
+}
+
 # Enable GuardDuty / Enable Security Hub
 # Create S3 Bucket for GuardDuty threat list
 resource "aws_s3_bucket" "guardduty_threat_list" {
