@@ -174,12 +174,12 @@ resource "aws_instance" "ubuntu_instance" {
   }
 }
 
-/*
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "threat_actor" {
   ami                    = var.ami
-  instance_type         = "t2.micro"
-  subnet_id             = aws_subnet.public_subnet.id
+  instance_type          = "t3.micro"
+  subnet_id              = aws_subnet.public_subnet.id
+  volume_size            = 15
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
   user_data = <<-EOF
@@ -201,7 +201,6 @@ EOF
     Name = "threat-actor"
   }
 }
-*/
 
 # Enable GuardDuty / Enable Security Hub
 # Create S3 Bucket for GuardDuty threat list
