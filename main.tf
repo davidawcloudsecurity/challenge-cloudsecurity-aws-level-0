@@ -179,9 +179,11 @@ resource "aws_instance" "threat_actor" {
   ami                    = var.ami
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.public_subnet.id
-  volume_size            = 15
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
+  root_block_device {
+    volume_size = 15
+  }
   user_data = <<-EOF
 #!/bin/bash
 apt update -y
