@@ -184,7 +184,7 @@ docker run -it hackersploit/bugbountytoolkit
 EOF
 
   tags = {
-    Name = "my-first-web-app"
+    Name = "threat-actor"
   }
 }
 
