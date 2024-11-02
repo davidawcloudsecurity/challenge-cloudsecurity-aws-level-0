@@ -170,7 +170,7 @@ resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
 resource "null_resource" "import_ova" {
   provisioner "local-exec" {
     command = filebase64("${var.setup_filename}")
-
+  }
   triggers = {
     always_run = "${timestamp()}"
   }
