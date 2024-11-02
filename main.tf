@@ -213,7 +213,8 @@ echo "AMI ID: $${AMI_ID}"
 REGION=$(aws ec2 describe-availability-zones --output text --query 'AvailabilityZones[0].[RegionName]')
 COPIED_AMI_ID=$(aws ec2 copy-image --source-image-id $${AMI_ID} --source-region $${REGION} --region $${REGION} --name "mrRobot-$${AMI_ID#ami-}" --description "Based on the show, Mr. Robot." --query ImageId --output text)
 echo "Copied AMI ID: $${COPIED_AMI_ID}"
-
+# Save COPIED_AMI_ID to a file
+echo "{\"ami_id\": \"$${COPIED_AMI_ID}\"}" > /tmp/ami_output.json
 # Tag the new AMI and deregister the original
 aws ec2 create-tags --resources "$${COPIED_AMI_ID}" --tags Key=Name,Value="mrRobot"
 aws ec2 deregister-image --image-id "$${AMI_ID}"
@@ -226,9 +227,13 @@ EOF
   }
 }
 
+data "external" "ami_id" {
+  program = ["cat", "/tmp/ami_output.json"]
+}
+
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
-  ami                   = $${COPIED_AMI_ID}
+  ami                   = data.external.ami_id.result["ami_id"]
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
