@@ -13,6 +13,10 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable ec2_session_manager_role {
+  default = "ec2_session_manager_role"
+}
+
 variable email {
   default = "admin@example.com"
 }
@@ -130,9 +134,15 @@ resource "aws_security_group" "public_security_group" {
   }
 }
 
+# Check if the IAM role exists
+data "aws_iam_role" "existing_ec2_session_manager_role" {
+  name = var.ec2_session_manager_role
+}
+
 # Create IAM Role for EC2 Instance
 resource "aws_iam_role" "ec2_session_manager_role" {
-  name = "ec2_session_manager_role"
+  count = length(data.aws_iam_role.existing_ec2_session_manager_role.arn) == 0 ? 1 : 0
+  name = data.aws_iam_role.existing_ec2_session_manager_role.name
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
