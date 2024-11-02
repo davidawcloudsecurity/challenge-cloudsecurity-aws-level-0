@@ -13,10 +13,6 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable ec2_session_manager_role {
-  default = "ec2_session_manager_role"
-}
-
 variable email {
   default = "admin@example.com"
 }
@@ -134,15 +130,9 @@ resource "aws_security_group" "public_security_group" {
   }
 }
 
-# Check if the IAM role exists
-data "aws_iam_role" "existing_ec2_session_manager_role" {
-  name = var.ec2_session_manager_role
-}
-
 # Create IAM Role for EC2 Instance
 resource "aws_iam_role" "ec2_session_manager_role" {
-  count = length(data.aws_iam_role.existing_ec2_session_manager_role.arn) == 0 ? 1 : 0
-  name = var.ec2_session_manager_role
+  name = "ec2_session_manager_role"
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
@@ -160,16 +150,14 @@ resource "aws_iam_role" "ec2_session_manager_role" {
 
 # Attach IAM Policy for Session Manager
 resource "aws_iam_role_policy_attachment" "session_manager_policy" {
-  role       = aws_iam_role.ec2_session_manager_role[0].name
-#  role       = aws_iam_role.ec2_session_manager_role.name
+  role       = aws_iam_role.ec2_session_manager_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 # Create Instance Profile for the Role
 resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
   name = "ec2_session_manager_profile"
-  role       = aws_iam_role.ec2_session_manager_role[0].name
-#   role = aws_iam_role.ec2_session_manager_role.name
+  role = aws_iam_role.ec2_session_manager_role.name
 }
 
 # Launch EC2 Instance with Session Manager
