@@ -160,7 +160,8 @@ resource "aws_iam_role" "ec2_session_manager_role" {
 
 # Attach IAM Policy for Session Manager
 resource "aws_iam_role_policy_attachment" "session_manager_policy" {
-  role       = aws_iam_role.ec2_session_manager_role.name
+  role       = aws_iam_role.ec2_session_manager_role[0].name
+#  role       = aws_iam_role.ec2_session_manager_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
