@@ -230,8 +230,8 @@ data "aws_ami" "mr_robot" {
   most_recent = true
 
   filter {
-    name   = "tag:AMI name"
-    values = ["mrRobot*"]
+    name   = "tag:Name"
+    values = ["mrRobot"]
   }
 }
 
