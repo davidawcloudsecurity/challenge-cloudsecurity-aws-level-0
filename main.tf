@@ -139,10 +139,6 @@ resource "aws_iam_role" "ec2_session_manager_role" {
   name = "ec2_session_manager_role_${random_id.suffix.hex}"
 #  name = "ec2_session_manager_role"
 
-  lifecycle {
-    create_before_destroy = true
-  }
-
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
