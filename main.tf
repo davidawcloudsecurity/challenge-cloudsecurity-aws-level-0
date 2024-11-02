@@ -172,12 +172,14 @@ resource "null_resource" "import_ova" {
     command = <<EOT
 #!/bin/bash
 
-# Extract the OVA file
-your-bucket-name=$1
+# Set the bucket name from a variable
+your_bucket_name = aws_s3_bucket.guardduty_threat_list.bucket
+
+# Download the OVA file
 wget https://download.vulnhub.com/mrrobot/mrRobot.ova -O /tmp/mrRobot.ova
 
-# Upload the VMDK or RAW file to S3 (assuming an S3 bucket is created)
-aws s3 cp /tmp/mrRobot.ova s3://${your-bucket-name}
+# Upload the OVA file to S3
+aws s3 cp /tmp/mrRobot.ova s3://$your_bucket_name
 
 # Create the containers.json file for importing the image
 echo '[
@@ -185,24 +187,41 @@ echo '[
     "Description": "mrRobot ova image",
     "Format": "ova",
     "UserBucket": {
-      "S3Bucket": "${your-bucket-name}",
+      "S3Bucket": "'$your_bucket_name'",
       "S3Key": "mrRobot.ova"
     }
   }
 ]' > /tmp/containers.json
 
-# Import the VMDK to EC2
+# Import the OVA to EC2
 IMPORTTASKID=$(aws ec2 import-image --description "mrRobot VM" --disk-containers "file:///tmp/containers.json" --query ImportTaskId --output text)
-while [[ "$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text)" != "preparing ami" ]]; do echo $(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text); sleep 10; done; echo "Import completed!";
-while [[ -z "$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].ImageId' --output text)" ]]; do echo "Waiting for AMI ID..."; sleep 10; done; AMI_ID=$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].ImageId' --output text);
+while [[ "$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text)" != "preparing ami" ]]; do
+    echo $(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text)
+    sleep 10
+done
+echo "Import completed!"
+
+# Wait for AMI ID
+while [[ -z "$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].ImageId' --output text)" ]]; do
+    echo "Waiting for AMI ID..."
+    sleep 10
+done
+AMI_ID=$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].ImageId' --output text)
 echo "AMI ID: $AMI_ID"
+
+# Get the region and copy the image
 REGION=$(aws ec2 describe-availability-zones --output text --query 'AvailabilityZones[0].[RegionName]')
-COPIED_AMI_ID=$(aws ec2 copy-image --source-image-id $AMI_ID --source-region $REGION --region $REGION --name mrRobot-${AMI_ID#ami-} --description "Based on the show, Mr. Robot." --query ImageId --output text)
-export $COPIED_AMI_ID
+COPIED_AMI_ID=$(aws ec2 copy-image --source-image-id $AMI_ID --source-region $REGION --region $REGION --name "mrRobot-${AMI_ID#ami-}" --description "Based on the show, Mr. Robot." --query ImageId --output text)
+echo "Copied AMI ID: $COPIED_AMI_ID"
+
+# Tag the new AMI and deregister the original
 aws ec2 create-tags --resources $COPIED_AMI_ID --tags Key=Name,Value="mrRobot"
 aws ec2 deregister-image --image-id $AMI_ID
-    EOT
+
+EOT
   }
+
+  # Use a trigger to force the resource to run each time
   triggers = {
     always_run = "${timestamp()}"
   }
@@ -253,6 +272,12 @@ EOF
 }
 
 # Enable GuardDuty / Enable Security Hub
+
+# Generate a random ID to make sure the bucket name is unique
+resource "random_id" "bucket_suffix" {
+  byte_length = 8
+}
+
 # Create S3 Bucket for GuardDuty threat list
 resource "aws_s3_bucket" "guardduty_threat_list" {
   bucket = "my-guardduty-threat-list-bucket-${random_id.bucket_suffix.hex}"
@@ -260,11 +285,6 @@ resource "aws_s3_bucket" "guardduty_threat_list" {
   tags = {
     Name = "GuardDutyThreatListBucket"
   }
-}
-
-# Generate a random ID to make sure the bucket name is unique
-resource "random_id" "bucket_suffix" {
-  byte_length = 8
 }
 
 # Null resource to create and append EC2 instance public IP to threat-list.txt
