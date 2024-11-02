@@ -168,7 +168,8 @@ resource "aws_iam_role_policy_attachment" "session_manager_policy" {
 # Create Instance Profile for the Role
 resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
   name = "ec2_session_manager_profile"
-  role = aws_iam_role.ec2_session_manager_role.name
+  role       = aws_iam_role.ec2_session_manager_role[0].name
+#   role = aws_iam_role.ec2_session_manager_role.name
 }
 
 # Launch EC2 Instance with Session Manager
