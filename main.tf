@@ -215,8 +215,8 @@ COPIED_AMI_ID=$(aws ec2 copy-image --source-image-id ${AMI_ID} --source-region $
 echo "Copied AMI ID: ${COPIED_AMI_ID}"
 
 # Tag the new AMI and deregister the original
-aws ec2 create-tags --resources ${COPIED_AMI_ID} --tags Key=Name,Value="mrRobot"
-aws ec2 deregister-image --image-id ${AMI_ID}
+aws ec2 create-tags --resources "$${COPIED_AMI_ID}" --tags Key=Name,Value="mrRobot"
+aws ec2 deregister-image --image-id "$${AMI_ID}"
 EOF
   }
 
