@@ -169,32 +169,7 @@ resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
 
 resource "null_resource" "import_ova" {
   provisioner "local-exec" {
-    command = <<EOT
-      # Download the OVA file
-      wget https://download.vulnhub.com/mrrobot/mrRobot.ova -O /tmp/mrRobot.ova
-
-      # Extract the OVA file
-      tar -xvf /tmp/mrRobot.ova -C /tmp/
-
-      # Upload the VMDK or RAW file to S3 (assuming an S3 bucket is created)
-      aws s3 cp /tmp/mrRobot-disk1.vmdk s3://your-bucket-name/mrRobot-disk1.vmdk
-
-      # Create the containers.json file for importing the image
-      echo '[
-        {
-          "Description": "mrRobot VMDK image",
-          "Format": "vmdk",
-          "UserBucket": {
-            "S3Bucket": "your-bucket-name",
-            "S3Key": "mrRobot-disk1.vmdk"
-          }
-        }
-      ]' > /tmp/containers.json
-
-      # Import the VMDK to EC2
-      aws ec2 import-image --description "mrRobot server" --disk-containers file:///tmp/containers.json
-    EOT
-  }
+    command = filebase64("${var.setup_filename}")
 
   triggers = {
     always_run = "${timestamp()}"
@@ -203,16 +178,16 @@ resource "null_resource" "import_ova" {
 
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
-  ami                    = var.ami
+  ami                    = ${COPIED_AMI_ID}
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
-  user_data = filebase64("${var.setup_filename}")
 
   tags = {
     Name = "my-first-web-app"
   }
+  depends_on = [null_resource.import_ova]
 }
 
 # Launch EC2 Instance with Session Manager
