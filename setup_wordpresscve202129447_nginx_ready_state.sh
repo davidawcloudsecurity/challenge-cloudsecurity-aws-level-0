@@ -103,13 +103,13 @@ apt install -y php libapache2-mod-php php-mysql php-cli php-curl php-xml php-mbs
 install_dir="/var/www/html/wordpress"
 mkdir -p ${install_dir}
 cd /tmp
-wget -q https://wordpress.org/wordpress-5.6.2.tar.gz
+wget -q https://wordpress.org/wordpress-5.0.tar.gz
 if [[ $? -ne 0 ]]; then
     echo "Failed to download WordPress."
     exit 1
 fi
 
-tar -xzf wordpress-5.6.2.tar.gz
+tar -xzf wordpress-5.0.tar.gz
 mv wordpress/* ${install_dir}
 
 # Check if WordPress files are in place
