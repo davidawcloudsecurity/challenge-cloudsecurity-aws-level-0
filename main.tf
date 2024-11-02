@@ -228,7 +228,7 @@ EOF
 
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
-  ami                   = ${COPIED_AMI_ID}
+  ami                   = $${COPIED_AMI_ID}
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
