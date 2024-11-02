@@ -173,7 +173,7 @@ resource "null_resource" "import_ova" {
 #!/bin/bash
 
 # Set the bucket name from a variable
-your_bucket_name = aws_s3_bucket.guardduty_threat_list.bucket
+your_bucket_name="${aws_s3_bucket.guardduty_threat_list.bucket}"
 
 # Download the OVA file
 wget https://download.vulnhub.com/mrrobot/mrRobot.ova -O /tmp/mrRobot.ova
