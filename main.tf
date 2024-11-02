@@ -176,9 +176,14 @@ resource "null_resource" "import_ova" {
   }
 }
 
+# Define an external data source to read the AMI ID from the JSON file
+data "external" "ami_id" {
+  program = ["cat", "/tmp/ami_output.json"]
+}
+
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
-  ami                    = ${COPIED_AMI_ID}
+  ami           = data.external.ami_id.result["copied_ami_id"]
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
