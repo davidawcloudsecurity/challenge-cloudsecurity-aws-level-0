@@ -225,13 +225,13 @@ EOF
   }
 }
 
-# Find AMI by specific tag
+# Find AMI by ID containing 'mrrobot'
 data "aws_ami" "mr_robot" {
   most_recent = true
 
   filter {
-    name   = "tag:Name"
-    values = ["mrRobot"]
+    name   = "image-id"
+    values = ["*mrRobot*"]
   }
 }
 
