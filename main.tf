@@ -184,7 +184,7 @@ aws s3 cp /tmp/mrRobot.ova s3://$your_bucket_name
 # Create the containers.json file for importing the image
 echo '[
   {
-    "Description": "mrRobot ova image",
+    "Description": "mr-Robot ova image",
     "Format": "ova",
     "UserBucket": {
       "S3Bucket": "'$your_bucket_name'",
