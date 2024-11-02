@@ -18,7 +18,7 @@ variable email {
 }
 
 variable "setup_filename" {
-  default = "setup_wordpresscve202129447_nginx_ready_state.sh"
+  default = "setup_wordpress_mrRobot_nginx_ready_state.sh"
 }
 
 variable "ami" {
