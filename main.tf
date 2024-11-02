@@ -130,9 +130,14 @@ resource "aws_security_group" "public_security_group" {
   }
 }
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 # Create IAM Role for EC2 Instance
 resource "aws_iam_role" "ec2_session_manager_role" {
-  name = "ec2_session_manager_role"
+  name = "ec2_session_manager_role_${random_id.suffix.hex}"
+#  name = "ec2_session_manager_role"
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
@@ -156,7 +161,9 @@ resource "aws_iam_role_policy_attachment" "session_manager_policy" {
 
 # Create Instance Profile for the Role
 resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
-  name = "ec2_session_manager_profile"
+#  name = "ec2_session_manager_profile"
+  name = "ec2_session_manager_profile_${random_id.suffix.hex}"
+
   role = aws_iam_role.ec2_session_manager_role.name
 }
 
