@@ -227,10 +227,6 @@ EOF
   }
 }
 
-data "external" "ami_id" {
-  program = ["cat", "/tmp/ami_output.json"]
-}
-
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
   ami                   = data.external.ami_id.result["ami_id"]
