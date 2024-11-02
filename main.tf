@@ -194,7 +194,7 @@ echo '[
 ]' > /tmp/containers.json
 
 # Import the OVA to EC2
-IMPORTTASKID=$(aws ec2 import-image --description "mrRobot VM" --disk-containers "file:///tmp/containers.json" --query ImportTaskId --output text)
+IMPORTTASKID=$(aws ec2 import-image --description "Mr-Robot VM" --disk-containers "file:///tmp/containers.json" --query ImportTaskId --output text)
 while [[ "$(aws ec2 describe-import-image-tasks --import-task-ids $${IMPORTTASKID} --query 'ImportImageTasks[*].StatusMessage' --output text)" != "preparing ami" ]]; do
     echo $(aws ec2 describe-import-image-tasks --import-task-ids $${IMPORTTASKID} --query 'ImportImageTasks[*].StatusMessage' --output text)
     sleep 10
