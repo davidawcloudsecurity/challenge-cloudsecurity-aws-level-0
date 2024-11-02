@@ -142,7 +142,7 @@ data "aws_iam_role" "existing_ec2_session_manager_role" {
 # Create IAM Role for EC2 Instance
 resource "aws_iam_role" "ec2_session_manager_role" {
   count = length(data.aws_iam_role.existing_ec2_session_manager_role.arn) == 0 ? 1 : 0
-  name = data.aws_iam_role.existing_ec2_session_manager_role.name[count]
+  name = data.aws_iam_role.existing_ec2_session_manager_role.name[0]
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
