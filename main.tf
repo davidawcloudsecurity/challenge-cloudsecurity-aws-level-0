@@ -176,11 +176,6 @@ resource "null_resource" "import_ova" {
   }
 }
 
-# Define an external data source to read the AMI ID from the JSON file
-data "external" "ami_id" {
-  program = ["cat", "/tmp/ami_output.json"]
-}
-
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
   ami           = data.external.ami_id.result["copied_ami_id"]
@@ -496,6 +491,11 @@ resource "aws_sns_topic_subscription" "lambda_subscription" {
   endpoint  = aws_lambda_function.findings_processor.arn
 }
 */
+
+# Define an external data source to read the AMI ID from the JSON file
+data "external" "ami_id" {
+  program = ["cat", "/tmp/ami_output.json"]
+}
 
 # Adding Outputs
 output "vpc_id" {
