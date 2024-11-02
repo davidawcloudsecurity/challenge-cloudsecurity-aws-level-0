@@ -3,11 +3,12 @@
 # Variables
 db_name="wp_$(date +%s)"
 db_user=$db_name
-db_password=$(date | md5sum | cut -c 1-12)
+#db_password=$(date | md5sum | cut -c 1-12)
+db_password="manchita"
 mysql_root_password=$(date | md5sum | cut -c 1-12)
 admin_user="admin"
 # Change this to a secure password
-admin_password="P@ssw0rd123!" 
+admin_password="lifegoeson" 
 # Change this to a valid email
 admin_email="admin@example.com"   
 
