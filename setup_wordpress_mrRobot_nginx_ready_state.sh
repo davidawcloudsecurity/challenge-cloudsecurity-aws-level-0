@@ -21,8 +21,9 @@ echo '[
 
 # Import the VMDK to EC2
 IMPORTTASKID=$(aws ec2 import-image --description "mrRobot VM" --disk-containers "file:///tmp/containers.json" --query ImportTaskId --output text)
-while [[ "$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text)" != "completed" ]]; do echo $(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text); sleep 10; done; echo "Import completed!"
+while [[ "$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text)" != "preparing ami" ]]; do echo $(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].StatusMessage' --output text); sleep 10; done; echo "Import completed!";
 AMI_ID=$(aws ec2 describe-import-image-tasks --import-task-ids $IMPORTTASKID --query 'ImportImageTasks[*].ImageId' --output text)
 REGION=$(aws ec2 describe-availability-zones --output text --query 'AvailabilityZones[0].[RegionName]')
-aws ec2 copy-image --source-image-id $AMI_ID --source-region us-east-1 --region $REGION --name mrRobot${AMI_ID#ami-} --description "Based on the show, Mr. Robot."
+COPIED_AMI_ID=$(aws ec2 copy-image --source-image-id $AMI_ID --source-region us-east-1 --region $REGION --name mrRobot${AMI_ID#ami-} --description "Based on the show, Mr. Robot." --query ImageId --output text)
+aws ec2 create-tags --resources $COPIED_AMI_ID --tags Key=Name,Value="mrRobot"
 aws ec2 deregister-image --image-id $AMI_ID
