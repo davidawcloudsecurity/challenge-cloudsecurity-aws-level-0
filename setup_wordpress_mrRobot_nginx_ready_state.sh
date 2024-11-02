@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Extract the OVA file
-
 your-bucket-name=$1
 wget https://download.vulnhub.com/mrrobot/mrRobot.ova -O /tmp/mrRobot.ova
 
