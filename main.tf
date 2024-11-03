@@ -296,7 +296,7 @@ resource "null_resource" "delete_ova" {
   triggers = {
     always_run = "${timestamp()}"
   }
-  depends_on = [aws_instance.ubuntu_instance.id]
+  depends_on = [aws_instance.ubuntu_instance]
 }
 
 # Enable GuardDuty / Enable Security Hub
