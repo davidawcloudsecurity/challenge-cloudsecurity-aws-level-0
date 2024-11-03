@@ -216,7 +216,6 @@ echo "Copied AMI ID: $${COPIED_AMI_ID}"
 # Tag the new AMI and deregister the original
 aws ec2 create-tags --resources "$${COPIED_AMI_ID}" --tags Key=Name,Value="mrRobot"
 aws ec2 deregister-image --image-id "$${AMI_ID}"
-echo "Delete mrRobot.ova"
 aws s3 rm s3://$your_bucket_name/mrRobot.ova
 while [ "$(aws ec2 describe-images --image-ids "$${COPIED_AMI_ID}" --query 'Images[0].State' --output text)" != "available" ]; do echo "Waiting for AMI..."; sleep 20; done && echo "AMI is ready!"
 EOF
