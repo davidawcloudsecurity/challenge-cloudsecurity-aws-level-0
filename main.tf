@@ -218,6 +218,7 @@ aws ec2 create-tags --resources "$${COPIED_AMI_ID}" --tags Key=Name,Value="mrRob
 aws ec2 deregister-image --image-id "$${AMI_ID}"
 echo "Delete mrRobot.ova"
 aws s3 rm s3://$your_bucket_name/mrRobot.ova
+while [ "$(aws ec2 describe-images --image-ids "$${COPIED_AMI_ID}" --query 'Images[0].State' --output text)" != "available" ]; do echo "Waiting for AMI..."; sleep 20; done && echo "AMI is ready!"
 EOF
   }
 
@@ -225,13 +226,6 @@ EOF
   triggers = {
     always_run = "${timestamp()}"
   }
-}
-
-# Wait for AMI to be available
-resource "aws_ami_wait_for_availability" "mr_robot" {
-  ami_id = data.aws_ami.mr_robot.id
-
-  depends_on = [null_resource.import_ova]
 }
 
 # Find AMI by tag
@@ -268,7 +262,6 @@ resource "aws_instance" "ubuntu_instance" {
   # Ensure AMI is available before creating instance
   depends_on = [
     null_resource.import_ova,
-    aws_ami_wait_for_availability.mr_robot
   ]
 }
 
