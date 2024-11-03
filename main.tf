@@ -134,10 +134,18 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
+# Check if the IAM Role already exists
+data "aws_iam_role" "ec2_session_manager_role" {
+  count = var.use_existing_role ? 1 : 0
+  name = "ec2_session_manager_role"
+}
+
 # Create IAM Role for EC2 Instance
 resource "aws_iam_role" "ec2_session_manager_role" {
-  name = "ec2_session_manager_role_${random_id.suffix.hex}"
-#  name = "ec2_session_manager_role"
+  count = var.use_existing_role ? 1 : 0
+
+#  name = "ec2_session_manager_role_${random_id.suffix.hex}"
+  name = "ec2_session_manager_role"
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
@@ -155,16 +163,22 @@ resource "aws_iam_role" "ec2_session_manager_role" {
 
 # Attach IAM Policy for Session Manager
 resource "aws_iam_role_policy_attachment" "session_manager_policy" {
-  role       = aws_iam_role.ec2_session_manager_role.name
+  count = length(aws_iam_role.ec2_session_manager_role) > 0 ? 1 : 0
+  role       = aws_iam_role.ec2_session_manager_role[count.index].name
+
+#  role       = aws_iam_role.ec2_session_manager_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 # Create Instance Profile for the Role
 resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
-#  name = "ec2_session_manager_profile"
-  name = "ec2_session_manager_profile_${random_id.suffix.hex}"
+  count = length(aws_iam_role.ec2_session_manager_role) > 0 ? 1 : 0
 
-  role = aws_iam_role.ec2_session_manager_role.name
+  name = "ec2_session_manager_profile"
+#  name = "ec2_session_manager_profile_${random_id.suffix.hex}"
+
+  role = aws_iam_role.ec2_session_manager_role[count.index].name
+#  role = aws_iam_role.ec2_session_manager_role.name
 }
 
 resource "null_resource" "import_ova" {
