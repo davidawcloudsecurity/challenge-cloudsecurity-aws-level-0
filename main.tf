@@ -589,11 +589,9 @@ output "public_subnet_id" {
   value = aws_subnet.public_subnet.id
 }
 
-output "ec2_instance_id" {
-  count = var.use_existing_role ? 1 : 0
-  value = aws_instance.ubuntu_instance[count.index].public_ip
-
-#  value = aws_instance.ubuntu_instance.id
+output "ec2_instance_public_ips" {
+  value = aws_instance.ubuntu_instance[*].public_ip
+  description = "Public IPs of the EC2 instances"
 }
 
 output "guardduty_detector_id" {
