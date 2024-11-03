@@ -253,6 +253,7 @@ data "aws_ami" "mr_robot" {
     name   = "tag:Name"
     values = ["mrRobot"]
   }
+  depends_on = [null_resource.import_ova]
 }
 
 # Launch EC2 Instance with Session Manager
