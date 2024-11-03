@@ -301,9 +301,9 @@ resource "null_resource" "delete_ova" {
       AMI_ID=$(aws ec2 describe-images --filters "Name=tag:Name,Values=mrRobot" --query 'Images[*].ImageId' --output text)
       SNAPSHOT_ID=$(aws ec2 describe-images --image-ids "$AMI_ID" --query 'Images[*].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)
       echo $SNAPSHOT_ID
-      aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"
       aws ec2 deregister-image --image-id "$AMI_ID"
-      aws ec2 delete-snapshot --snapshot-id $(aws ec2 describe-snapshots --owner-ids self  --query Snapshots[*].SnapshotId --region=us-east-1 --output text)
+      while [[ -n $(aws ec2 describe-images --filters "Name=tag:Name,Values=mrRobot" --query 'Images[*].ImageId' --output text) ]]; do echo "AMI with tag 'mrRobot' still exists"; sleep 10; done; echo "AMI with tag 'mrRobot' is now missing"
+      aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"   
     EOT
   }
 
