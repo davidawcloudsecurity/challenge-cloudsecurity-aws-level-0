@@ -227,14 +227,30 @@ EOF
   }
 }
 
-# Find AMI by ID containing 'mrrobot'
+# Wait for AMI to be available
+resource "aws_ami_wait_for_availability" "mr_robot" {
+  ami_id = data.aws_ami.mr_robot.id
+
+  depends_on = [null_resource.import_ova]
+}
+
+# Find AMI by tag
 data "aws_ami" "mr_robot" {
   most_recent = true
+
+  # Add owners filter to restrict AMI search
+  owners = ["self"]
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
 
   filter {
     name   = "tag:Name"
     values = ["mrRobot"]
   }
+
   depends_on = [null_resource.import_ova]
 }
 
@@ -249,7 +265,11 @@ resource "aws_instance" "ubuntu_instance" {
   tags = {
     Name = "my-first-web-app"
   }
-  depends_on = [null_resource.import_ova]
+  # Ensure AMI is available before creating instance
+  depends_on = [
+    null_resource.import_ova,
+    aws_ami_wait_for_availability.mr_robot
+  ]
 }
 
 # Launch EC2 Instance with Session Manager
