@@ -314,7 +314,7 @@ resource "random_id" "bucket_suffix" {
 
 # Create S3 Bucket for GuardDuty threat list
 resource "aws_s3_bucket" "guardduty_threat_list" {
-  bucket = "my-guardduty-threat-list-bucket-${random_id.bucket_suffix.hex}"
+  bucket = "my-guardduty-threat-list-bucket # -${random_id.bucket_suffix.hex}"
   
   tags = {
     Name = "GuardDutyThreatListBucket"
@@ -323,13 +323,16 @@ resource "aws_s3_bucket" "guardduty_threat_list" {
 
 # Null resource to create and append EC2 instance public IP to threat-list.txt
 resource "null_resource" "create_threat_list" {
+  count = var.use_existing_role ? 1 : 0
+
   provisioner "local-exec" {
     command = <<EOT
       # Create the threat-list.txt file if it doesn't exist
       touch threat-list.txt
 
       # Append the public IP of the EC2 instance to the threat list
-      echo "${aws_instance.ubuntu_instance.public_ip}" >> threat-list.txt
+      echo "${aws_instance.ubuntu_instance[count.index].public_ip}" >> threat-list.txt
+#      echo "${aws_instance.ubuntu_instance.public_ip}" >> threat-list.txt
 
       # Display the contents of the file (optional)
       cat threat-list.txt
