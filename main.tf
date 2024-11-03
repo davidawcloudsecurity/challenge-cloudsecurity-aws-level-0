@@ -315,7 +315,7 @@ resource "random_id" "bucket_suffix" {
 
 # Create S3 Bucket for GuardDuty threat list
 resource "aws_s3_bucket" "guardduty_threat_list" {
-  bucket = "my-guardduty-threat-list-bucket # -${random_id.bucket_suffix.hex}"
+  bucket = "my-guardduty-threat-list-bucket" # -${random_id.bucket_suffix.hex}
   
   tags = {
     Name = "GuardDutyThreatListBucket"
