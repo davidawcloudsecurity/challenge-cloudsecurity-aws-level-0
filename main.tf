@@ -260,9 +260,7 @@ resource "aws_instance" "ubuntu_instance" {
     Name = "my-first-web-app"
   }
   # Ensure AMI is available before creating instance
-  depends_on = [
-    null_resource.import_ova,
-  ]
+  depends_on = [null_resource.import_ova]
 }
 
 # Launch EC2 Instance with Session Manager
@@ -293,6 +291,7 @@ EOF
   tags = {
     Name = "threat-actor"
   }
+  depends_on = [null_resource.import_ova]
 }
 
 # Remove image 
