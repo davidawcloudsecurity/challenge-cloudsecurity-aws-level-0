@@ -17,6 +17,12 @@ variable email {
   default = "admin@example.com"
 }
 
+# Define a variable to provide the IAM Role name if you want to use an existing one
+variable "use_existing_role" {
+  type    = bool
+  default = false
+}
+
 variable "setup_filename" {
   default = "setup_wordpress_mrRobot_nginx_ready_state.sh"
 }
