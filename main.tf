@@ -216,6 +216,8 @@ echo "Copied AMI ID: $${COPIED_AMI_ID}"
 # Tag the new AMI and deregister the original
 aws ec2 create-tags --resources "$${COPIED_AMI_ID}" --tags Key=Name,Value="mrRobot"
 aws ec2 deregister-image --image-id "$${AMI_ID}"
+echo "Delete mrRobot.ova"
+aws s3 rm s3://$your_bucket_name/mrRobot.ova
 EOF
   }
 
@@ -277,6 +279,24 @@ EOF
   tags = {
     Name = "threat-actor"
   }
+}
+
+# Remove image 
+resource "null_resource" "delete_ova" {
+  provisioner "local-exec" {
+    command = <<EOT
+      # Find and Deregister the AMI
+      AMI_ID=$(aws ec2 describe-images --filters "Name=tag:Name,Values=mrRobot" --query 'Images[*].ImageId' --output text)
+      aws ec2 deregister-image --image-id "$AMI_ID"
+      SNAPSHOT_ID=$(aws ec2 describe-images --image-ids "$AMI_ID" --query 'Images[*].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)
+      aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"
+    EOT
+  }
+
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+  depends_on = [aws_instance.ubuntu_instance.id]
 }
 
 # Enable GuardDuty / Enable Security Hub
