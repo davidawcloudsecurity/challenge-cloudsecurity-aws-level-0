@@ -17,12 +17,6 @@ variable email {
   default = "admin@example.com"
 }
 
-# Define a variable to provide the IAM Role name if you want to use an existing one
-variable "use_existing_role" {
-  type    = bool
-  default = false
-}
-
 variable "setup_filename" {
   default = "setup_wordpress_mrRobot_nginx_ready_state.sh"
 }
@@ -140,18 +134,10 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-# Check if the IAM Role already exists
-data "aws_iam_role" "ec2_session_manager_role" {
-  count = var.use_existing_role ? 1 : 0
-  name = "ec2_session_manager_role"
-}
-
 # Create IAM Role for EC2 Instance
 resource "aws_iam_role" "ec2_session_manager_role" {
-  count = var.use_existing_role ? 1 : 0
-
-#  name = "ec2_session_manager_role_${random_id.suffix.hex}"
-  name = "ec2_session_manager_role"
+  name = "ec2_session_manager_role_${random_id.suffix.hex}"
+#  name = "ec2_session_manager_role"
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
@@ -169,22 +155,16 @@ resource "aws_iam_role" "ec2_session_manager_role" {
 
 # Attach IAM Policy for Session Manager
 resource "aws_iam_role_policy_attachment" "session_manager_policy" {
-  count = length(aws_iam_role.ec2_session_manager_role) > 0 ? 1 : 0
-  role       = aws_iam_role.ec2_session_manager_role[count.index].name
-
-#  role       = aws_iam_role.ec2_session_manager_role.name
+  role       = aws_iam_role.ec2_session_manager_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 # Create Instance Profile for the Role
 resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
-  count = length(aws_iam_role.ec2_session_manager_role) > 0 ? 1 : 0
+#  name = "ec2_session_manager_profile"
+  name = "ec2_session_manager_profile_${random_id.suffix.hex}"
 
-  name = "ec2_session_manager_profile"
-#  name = "ec2_session_manager_profile_${random_id.suffix.hex}"
-
-  role = aws_iam_role.ec2_session_manager_role[count.index].name
-#  role = aws_iam_role.ec2_session_manager_role.name
+  role = aws_iam_role.ec2_session_manager_role.name
 }
 
 resource "null_resource" "import_ova" {
@@ -253,19 +233,15 @@ data "aws_ami" "mr_robot" {
     name   = "tag:Name"
     values = ["mrRobot"]
   }
-  depends_on = [null_resource.import_ova]
 }
 
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
-  count = var.use_existing_role ? 1 : 0
-
   ami                    = data.aws_ami.mr_robot.id
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile[count.index].name
-#  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
+  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
 
   tags = {
     Name = "my-first-web-app"
@@ -275,14 +251,11 @@ resource "aws_instance" "ubuntu_instance" {
 
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "threat_actor" {
-  count = var.use_existing_role ? 1 : 0
-
   ami                    = var.ami
-  instance_type          = "t2.micro"
+  instance_type          = "t3.micro"
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile[count.index].name
-#  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
+  iam_instance_profile   = aws_iam_instance_profile.ec2_session_manager_profile.name
   root_block_device {
     volume_size = 15
   }
@@ -315,7 +288,7 @@ resource "random_id" "bucket_suffix" {
 
 # Create S3 Bucket for GuardDuty threat list
 resource "aws_s3_bucket" "guardduty_threat_list" {
-  bucket = "my-guardduty-threat-list-bucket" # -${random_id.bucket_suffix.hex}
+  bucket = "my-guardduty-threat-list-bucket-${random_id.bucket_suffix.hex}"
   
   tags = {
     Name = "GuardDutyThreatListBucket"
@@ -324,15 +297,13 @@ resource "aws_s3_bucket" "guardduty_threat_list" {
 
 # Null resource to create and append EC2 instance public IP to threat-list.txt
 resource "null_resource" "create_threat_list" {
-  count = var.use_existing_role ? 1 : 0
-
   provisioner "local-exec" {
     command = <<EOT
       # Create the threat-list.txt file if it doesn't exist
       touch threat-list.txt
 
       # Append the public IP of the EC2 instance to the threat list
-      echo "${aws_instance.ubuntu_instance[count.index].public_ip}" >> threat-list.txt
+      echo "${aws_instance.ubuntu_instance.public_ip}" >> threat-list.txt
 
       # Display the contents of the file (optional)
       cat threat-list.txt
@@ -590,9 +561,8 @@ output "public_subnet_id" {
   value = aws_subnet.public_subnet.id
 }
 
-output "ec2_instance_public_ips" {
-  value = aws_instance.ubuntu_instance[*].public_ip
-  description = "Public IPs of the EC2 instances"
+output "ec2_instance_id" {
+  value = aws_instance.ubuntu_instance.id
 }
 
 output "guardduty_detector_id" {
