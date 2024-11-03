@@ -300,8 +300,8 @@ resource "null_resource" "delete_ova" {
     command = <<EOT
       # Find and Deregister the AMI
       AMI_ID=$(aws ec2 describe-images --filters "Name=tag:Name,Values=mrRobot" --query 'Images[*].ImageId' --output text)
-      aws ec2 deregister-image --image-id "$AMI_ID"
       SNAPSHOT_ID=$(aws ec2 describe-images --image-ids "$AMI_ID" --query 'Images[*].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)
+      aws ec2 deregister-image --image-id "$AMI_ID"
       aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"
     EOT
   }
