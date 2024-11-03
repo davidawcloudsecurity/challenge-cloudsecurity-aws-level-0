@@ -332,7 +332,6 @@ resource "null_resource" "create_threat_list" {
 
       # Append the public IP of the EC2 instance to the threat list
       echo "${aws_instance.ubuntu_instance[count.index].public_ip}" >> threat-list.txt
-#      echo "${aws_instance.ubuntu_instance.public_ip}" >> threat-list.txt
 
       # Display the contents of the file (optional)
       cat threat-list.txt
