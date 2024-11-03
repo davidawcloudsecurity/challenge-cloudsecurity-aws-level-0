@@ -257,6 +257,8 @@ data "aws_ami" "mr_robot" {
 
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
+  count = var.use_existing_role ? 1 : 0
+
   ami                    = data.aws_ami.mr_robot.id
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public_subnet.id
@@ -272,6 +274,8 @@ resource "aws_instance" "ubuntu_instance" {
 
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "threat_actor" {
+  count = var.use_existing_role ? 1 : 0
+
   ami                    = var.ami
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public_subnet.id
