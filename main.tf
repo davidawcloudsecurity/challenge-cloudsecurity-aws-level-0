@@ -168,6 +168,8 @@ resource "aws_iam_instance_profile" "ec2_session_manager_profile" {
 }
 
 resource "null_resource" "import_ova" {
+  count = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? 1 : 0
+
   provisioner "local-exec" {
     command = <<-EOF
 #!/bin/bash
@@ -229,6 +231,8 @@ EOF
 
 # Find AMI by tag
 data "aws_ami" "mr_robot" {
+  count = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? 1 : 0
+
   most_recent = true
 
   # Add owners filter to restrict AMI search
@@ -249,7 +253,9 @@ data "aws_ami" "mr_robot" {
 
 # Launch EC2 Instance with Session Manager
 resource "aws_instance" "ubuntu_instance" {
-  ami                    = data.aws_ami.mr_robot.id
+  # ami                    = data.aws_ami.mr_robot.id
+  ami           = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? data.aws_ami.mr_robot[0].id : var.ami
+
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.public_security_group.id]
@@ -259,7 +265,8 @@ resource "aws_instance" "ubuntu_instance" {
     Name = "my-first-web-app"
   }
   # Ensure AMI is available before creating instance
-  depends_on = [null_resource.import_ova]
+  # depends_on = [null_resource.import_ova]
+  depends_on = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? [null_resource.import_ova[0]] : []
 }
 
 # Launch EC2 Instance with Session Manager
