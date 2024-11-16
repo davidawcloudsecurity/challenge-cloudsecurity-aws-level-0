@@ -301,6 +301,8 @@ EOF
 
 # Remove image 
 resource "null_resource" "delete_ova" {
+  count = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? 1 : 0
+
   provisioner "local-exec" {
     command = <<EOT
       # Find and Deregister the AMI
