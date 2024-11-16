@@ -266,7 +266,7 @@ resource "aws_instance" "ubuntu_instance" {
   }
   # Ensure AMI is available before creating instance
   # depends_on = [null_resource.import_ova]
-  depends_on = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? [null_resource.import_ova[0]] : []
+  # depends_on = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? [null_resource.import_ova[0]] : []
 }
 
 # Launch EC2 Instance with Session Manager
