@@ -159,4 +159,10 @@ Restart apache2
 ```bash
 sudo systemctl restart apache2
 ```
+### To do
+```bash
+Put this in null resource to create instance if filename is robot ova
+https://docs.aws.amazon.com/cli/v1/userguide/cli-services-ec2-instances.html
+https://devopscube.com/use-aws-cli-create-ec2-instance/
+```
 
