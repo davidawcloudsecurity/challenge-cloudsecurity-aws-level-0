@@ -264,6 +264,20 @@ resource "aws_instance" "ubuntu_instance" {
   tags = {
     Name = "my-first-web-app"
   }
+  
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOT
+      # Find and Deregister the AMI
+      AMI_ID=$(aws ec2 describe-images --filters "Name=tag:Name,Values=mrRobot" --query 'Images[*].ImageId' --output text)
+      SNAPSHOT_ID=$(aws ec2 describe-images --image-ids "$AMI_ID" --query 'Images[*].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)
+      echo $SNAPSHOT_ID
+      aws ec2 deregister-image --image-id "$AMI_ID"
+      while [[ -n $(aws ec2 describe-images --filters "Name=tag:Name,Values=mrRobot" --query 'Images[*].ImageId' --output text) ]]; do echo "AMI with tag 'mrRobot' still exists"; sleep 10; done; echo "AMI with tag 'mrRobot' is now missing"
+      aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"   
+    EOT
+  }
+
   # Ensure this is uncommented if using robot AMI is available and before creating instance
   # depends_on = [null_resource.import_ova]
 }
@@ -299,7 +313,9 @@ EOF
   depends_on = [null_resource.import_ova]
 }
 
-# Remove image 
+# Remove image
+# Comment out to use aws instance to delete when destroy
+/*
 resource "null_resource" "delete_ova" {
   count = var.setup_filename == "setup_wordpress_mrRobot_nginx_ready_state.sh" ? 1 : 0
 
@@ -320,7 +336,7 @@ resource "null_resource" "delete_ova" {
   }
   depends_on = [aws_instance.ubuntu_instance]
 }
-
+*/
 # Enable GuardDuty / Enable Security Hub
 
 # Generate a random ID to make sure the bucket name is unique
