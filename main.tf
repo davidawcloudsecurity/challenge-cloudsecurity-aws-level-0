@@ -274,7 +274,8 @@ resource "aws_instance" "ubuntu_instance" {
       echo $SNAPSHOT_ID
       aws ec2 deregister-image --image-id "$AMI_ID"
       while [[ -n $(aws ec2 describe-images --filters "Name=tag:Name,Values=mrRobot" --query 'Images[*].ImageId' --output text) ]]; do echo "AMI with tag 'mrRobot' still exists"; sleep 10; done; echo "AMI with tag 'mrRobot' is now missing"
-      aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"   
+      aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"
+      aws ec2 delete-snapshot --snapshot-id $(aws ec2 describe-snapshots --owner-ids self  --query 'Snapshots[].SnapshotId' --output text)
     EOT
   }
 
