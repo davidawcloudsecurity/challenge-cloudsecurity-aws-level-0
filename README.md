@@ -160,9 +160,11 @@ Restart apache2
 sudo systemctl restart apache2
 ```
 ### To do
+Use this to remove snapshot and ami in robot branch - https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax#destroy-time-provisioners
 ```bash
 Put this in null resource to create instance if filename is robot ova
 https://docs.aws.amazon.com/cli/v1/userguide/cli-services-ec2-instances.html
 https://devopscube.com/use-aws-cli-create-ec2-instance/
 ```
+
 
