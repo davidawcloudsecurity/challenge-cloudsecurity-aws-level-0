@@ -160,6 +160,8 @@ Restart apache2
 sudo systemctl restart apache2
 ```
 ### To do
+how to protect using guardduty - https://dev.to/vumdao/aws-guardduty-combine-with-security-hub-and-slack-17eh
+
 Use this to remove snapshot and ami in robot branch - https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax#destroy-time-provisioners
 ```bash
 Put this in null resource to create instance if filename is robot ova
